@@ -12,6 +12,18 @@ export const ROSTER = [
   { id: 'inferno', name: 'INFERNO', mainCol: 0x991100, accentCol: 0xff5500, cssColor: '#ff5500', hpMult: 1.1,  spdMult: 1.1,  dmgMult: 1.2,  role: 'Striker',   special: 'INFERNO BURST' },
 ];
 
+export const CAMPAIGN_ENEMIES = [
+  { name: 'GRUNT',     title: 'The First Test',   mainCol: 0x557744, accentCol: 0x88cc55, cssColor: '#88cc55', hpMult: 0.7,  spdMult: 0.85, dmgMult: 0.8,  aiDiff: 'easy',   special: 'POWER SLAM'    },
+  { name: 'SERPENT',   title: 'Venom Strike',     mainCol: 0x115533, accentCol: 0x00ff88, cssColor: '#00ff88', hpMult: 0.9,  spdMult: 1.3,  dmgMult: 0.9,  aiDiff: 'easy',   special: 'VENOM RUSH'    },
+  { name: 'BRAWLER',   title: 'Iron Fists',       mainCol: 0x553311, accentCol: 0xff8833, cssColor: '#ff8833', hpMult: 1.2,  spdMult: 0.9,  dmgMult: 1.3,  aiDiff: 'medium', special: 'CRUSHER'       },
+  { name: 'WRAITH',    title: 'Shadow of Death',  mainCol: 0x330055, accentCol: 0xcc00ff, cssColor: '#cc00ff', hpMult: 0.85, spdMult: 1.45, dmgMult: 1.1,  aiDiff: 'medium', special: 'GHOST STRIKE'  },
+  { name: 'WARLORD',   title: 'The Iron Tyrant',  mainCol: 0x443322, accentCol: 0xffaa00, cssColor: '#ffaa00', hpMult: 1.5,  spdMult: 0.75, dmgMult: 1.45, aiDiff: 'medium', special: 'TYRANT CRASH'  },
+  { name: 'NEMESIS',   title: 'Mirror of Doom',   mainCol: 0x002255, accentCol: 0x0099ff, cssColor: '#0099ff', hpMult: 1.3,  spdMult: 1.2,  dmgMult: 1.35, aiDiff: 'hard',   special: 'NEMESIS SURGE' },
+  { name: 'VOID LORD', title: 'The Final Boss',   mainCol: 0x110011, accentCol: 0xff00ff, cssColor: '#ff00ff', hpMult: 1.8,  spdMult: 1.2,  dmgMult: 1.6,  aiDiff: 'hard',   special: 'VOID COLLAPSE' },
+];
+
+export const campaignState = { active: false, stage: 0, currentEnemy: null };
+
 export let vsAI = true;
 export let aiDifficulty = 'easy';
 export function setVsAI(v) { vsAI = v; }

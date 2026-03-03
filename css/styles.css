@@ -106,3 +106,25 @@ canvas{display:block;position:fixed;inset:0}
 .diff-btn{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;padding:8px 16px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;pointer-events:all;transition:all .2s}
 .diff-btn.active{background:rgba(255,214,0,.12);border-color:var(--gold);color:var(--gold)}
 .diff-label{font-size:8px;letter-spacing:4px;color:rgba(255,255,255,.3);text-align:center}
+.mode-btn.campaign{border-color:var(--gold);color:var(--gold)}
+.mode-btn.campaign:hover{background:rgba(255,214,0,.12);box-shadow:0 0 20px rgba(255,214,0,.4)}
+#campaign-stage-intro{position:fixed;inset:0;z-index:350;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#080818 0%,#000 100%);gap:16px}
+#campaign-stage-intro::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,214,0,.015) 40px,rgba(255,214,0,.015) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,214,0,.015) 40px,rgba(255,214,0,.015) 41px)}
+#csi-label{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:8px;color:var(--gold);opacity:.6;position:relative;z-index:1;text-transform:uppercase}
+#csi-stage{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:6px;color:rgba(255,255,255,.4);position:relative;z-index:1;text-transform:uppercase}
+#csi-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;letter-spacing:5px;color:rgba(255,255,255,.3);position:relative;z-index:1;text-transform:uppercase}
+#csi-enemy{font-family:'Orbitron',sans-serif;font-size:72px;font-weight:900;letter-spacing:8px;line-height:1;position:relative;z-index:1;text-transform:uppercase;animation:vglow 1.5s infinite}
+#csi-progress{display:flex;gap:10px;margin-top:12px;position:relative;z-index:1}
+.csi-dot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:transparent;transition:all .3s}
+.csi-dot.done{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.4)}
+.csi-dot.current{width:14px;height:14px;border-width:2px}
+#campaign-gameover{position:fixed;inset:0;z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#180008 0%,#000 100%);gap:18px}
+#campaign-gameover::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,61,113,.015) 40px,rgba(255,61,113,.015) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,61,113,.015) 40px,rgba(255,61,113,.015) 41px)}
+#cgo-title{font-family:'Orbitron',sans-serif;font-size:80px;font-weight:900;letter-spacing:10px;color:var(--p2);text-shadow:0 0 60px var(--p2g),0 0 120px var(--p2g);position:relative;z-index:1;animation:vglow 2s infinite}
+#cgo-stage{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:4px;position:relative;z-index:1;text-transform:uppercase}
+#cgo-sub{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:5px;color:rgba(255,255,255,.3);position:relative;z-index:1;text-transform:uppercase}
+#cgo-btns{display:flex;gap:16px;margin-top:20px;position:relative;z-index:1}
+#cgo-retry,#cgo-menu{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;padding:14px 28px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;pointer-events:all;transition:all .2s}
+#cgo-retry{border-color:var(--gold);color:var(--gold)}
+#cgo-retry:hover{background:rgba(255,214,0,.12);box-shadow:0 0 20px rgba(255,214,0,.3)}
+#cgo-menu:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
