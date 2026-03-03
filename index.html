@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ARENA FIGHTER III</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="victory-screen">
+  <div id="victory-title">Champion</div>
+  <div id="victory-name">AZURE</div>
+  <div id="victory-sub">⚡ Victorious ⚡</div>
+  <div id="victory-return">Press R to return to menu</div>
+</div>
+
+<div id="mode-screen">
+  <div style="position:relative;z-index:1">
+    <div class="title-main">ARENA</div>
+    <div class="title-sub">FIGHTER &nbsp;III</div>
+  </div>
+  <div class="mode-btns">
+    <div class="mode-btn vs-ai" id="btn-ai">VS COMPUTER</div>
+    <div class="mode-btn vs-human" id="btn-human">VS PLAYER 2</div>
+  </div>
+  <div id="diff-section" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div class="diff-label">AI DIFFICULTY</div>
+    <div class="diff-row">
+      <div class="diff-btn active" data-diff="easy">EASY</div>
+      <div class="diff-btn" data-diff="medium">MEDIUM</div>
+      <div class="diff-btn" data-diff="hard">HARD</div>
+    </div>
+  </div>
+  <div class="mode-hint">P1: WASD + Space(jump) + Shift(block) + F/G/H &nbsp;·&nbsp; P2: ARROWS + ;/'/ ]</div>
+</div>
+
+<div id="ui">
+  <div id="hit-flash"></div>
+  <div id="countdown-overlay"></div>
+
+  <div class="hud-side" id="p1-hud">
+    <div class="player-label">P1 · AZURE</div>
+    <div class="hp-track">
+      <div class="hp-fill" id="p1-hp-fill"></div>
+      <div class="hp-segs"><div class="hp-seg"></div><div class="hp-seg"></div><div class="hp-seg"></div><div class="hp-seg"></div></div>
+    </div>
+    <div class="sp-track"><div class="sp-fill" id="p1-sp-fill"></div></div>
+    <div class="sp-label">special ▱▱▱▱▱</div>
+    <div class="as-track"><div class="as-fill" id="p1-as-fill"></div></div>
+    <div class="as-label">stamina</div>
+    <div class="sp-track" style="margin-top:2px"><div class="sp-fill" id="p1-bs-fill" style="background:linear-gradient(90deg,#336,#88ccff)"></div></div>
+    <div class="sp-label" style="color:#88ccff;opacity:.4">guard</div>
+  </div>
+
+  <div class="hud-side" id="p2-hud">
+    <div class="player-label" id="p2-label">CRIMSON · P2</div>
+    <div class="hp-track">
+      <div class="hp-fill" id="p2-hp-fill"></div>
+      <div class="hp-segs"><div class="hp-seg"></div><div class="hp-seg"></div><div class="hp-seg"></div><div class="hp-seg"></div></div>
+    </div>
+    <div class="sp-track"><div class="sp-fill" id="p2-sp-fill"></div></div>
+    <div class="sp-label" style="text-align:right">▱▱▱▱▱ special</div>
+    <div class="as-track"><div class="as-fill" id="p2-as-fill" style="float:right"></div></div>
+    <div class="as-label" style="text-align:right">stamina</div>
+    <div class="sp-track" style="margin-top:2px"><div class="sp-fill" id="p2-bs-fill" style="background:linear-gradient(90deg,#336,#88ccff);float:right"></div></div>
+    <div class="sp-label" style="text-align:right;color:#88ccff;opacity:.4">guard</div>
+  </div>
+
+  <div id="center-hud">
+    <div id="round-info">Round 1</div>
+    <div id="timer">60</div>
+    <div class="win-dots"><div class="win-dot" id="p1-w1"></div><div class="win-dot" id="p1-w2"></div></div>
+    <div style="font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.2);margin-top:2px">vs</div>
+    <div class="win-dots"><div class="win-dot" id="p2-w1"></div><div class="win-dot" id="p2-w2"></div></div>
+  </div>
+
+  <div id="announcer"></div>
+  <div id="announcer2"></div>
+  <div id="special-popup"></div>
+
+  <div id="controls">
+    <div class="ctrl-col" id="p1-ctrl">
+      <div class="ctrl-name">Player 1</div>
+      <div class="ctrl-row">
+        <span class="key">WASD</span> Move<br>
+        <span class="key">Space</span> Jump &nbsp;<span class="key" style="color:#88ccff">Shift</span> Block<br>
+        <span class="key">F</span> Punch &nbsp;<span class="key">G</span> Kick<br>
+        <span class="key" style="color:var(--gold)">H</span> Special ⚡
+      </div>
+    </div>
+    <div class="ctrl-col" id="p2-ctrl">
+      <div class="ctrl-name" id="p2-ctrl-name">Player 2</div>
+      <div class="ctrl-row" id="p2-ctrl-row">
+        <span class="key">←��</span> Move<br>
+        <span class="key">↑</span> Jump &nbsp;<span class="key" style="color:#88ccff">↓</span> Block<br>
+        <span class="key">;</span> Punch &nbsp;<span class="key">'</span> Kick<br>
+        <span class="key" style="color:var(--gold)">]</span> Special ⚡
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
