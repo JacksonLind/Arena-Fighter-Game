@@ -28,7 +28,7 @@ export function showExhaustedPopup(player) {
 export function tryAttack(atk, def, dmg, range, col, knockback = 0) {
   const dx = def.x - atk.x, dz = def.z - atk.z, dist = Math.sqrt(dx * dx + dz * dz);
   if (dist < range && ((atk.facing > 0 && dx > 0) || (atk.facing < 0 && dx < 0))) {
-    applyDamage(def, dmg, col, false);
+    applyDamage(atk, def, Math.round(dmg * (atk.dmgMult || 1)), col, false);
     atk.sp = Math.min(MAX_SP, atk.sp + 18);
     if (knockback > 0 && !def.blocking) { const len = dist > 0.01 ? dist : 1; def.kvx = (dx / len) * knockback; def.kvz = (dz / len) * knockback * 0.25; def.vy = 5.5; def.onGround = false; def.ragdoll = 0.55; cameraShake(0.45, 0.22); }
   }
@@ -38,15 +38,19 @@ export function doSpecial(atk, def, col, name) {
   const dx = def.x - atk.x, dz = def.z - atk.z, dist = Math.sqrt(dx * dx + dz * dz);
   spawnSpecial(new THREE.Vector3((atk.x + def.x) / 2, 1.5, (atk.z + def.z) / 2), col);
   showSpecialPopup(`⚡ ${name} ⚡`, col);
-  if (dist < 4.5) { applyDamage(def, 30, col, true); atk.sp = Math.min(MAX_SP, atk.sp + 10); if (!def.blocking) { const len = dist > 0.01 ? dist : 1; def.kvx = (dx / len) * 22; def.kvz = (dz / len) * 22 * 0.3; def.vy = 9; def.onGround = false; def.ragdoll = 1.1; } }
+  if (dist < 4.5) { applyDamage(atk, def, Math.round(30 * (atk.dmgMult || 1)), col, true); atk.sp = Math.min(MAX_SP, atk.sp + 10); if (!def.blocking) { const len = dist > 0.01 ? dist : 1; def.kvx = (dx / len) * 22; def.kvz = (dz / len) * 22 * 0.3; def.vy = 9; def.onGround = false; def.ragdoll = 1.1; } }
   cameraShake(0.7, 0.4);
 }
 
-export function applyDamage(def, dmg, col, isSpecial) {
+export function applyDamage(atk, def, dmg, col, isSpecial) {
   const isBlocked = def.blocking && !isSpecial, isPartial = def.blocking && isSpecial;
   const actual = isBlocked ? Math.floor(dmg * 0.15) : isPartial ? Math.floor(dmg * 0.4) : dmg;
   def.hp = Math.max(0, def.hp - actual);
-  if (!isBlocked) def.hitStun = isSpecial ? 0.5 : 0.22;
+  if (!isBlocked) {
+    def.hitStun = isSpecial ? 0.5 : 0.22;
+    def.comboCount = 0; def.comboTimer = 0;
+    if (atk) { atk.comboCount++; atk.comboTimer = 1.8; }
+  }
   def.sp = Math.min(MAX_SP, def.sp + (isBlocked ? 14 : 8));
   const flash = document.getElementById('hit-flash');
   if (isBlocked) { flash.style.background = '#88ccff'; flash.style.opacity = '0.18'; setTimeout(() => { flash.style.opacity = '0'; flash.style.background = '#fff'; }, 80); showBlockPopup(def); }

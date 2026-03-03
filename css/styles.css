@@ -64,6 +64,31 @@ canvas{display:block;position:fixed;inset:0}
 #victory-sub{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;position:relative;z-index:1;margin-top:8px}
 #victory-return{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:5px;color:rgba(255,255,255,.3);text-transform:uppercase;position:relative;z-index:1;margin-top:32px;animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:.3}50%{opacity:.7}}
+#char-select-screen{position:fixed;inset:0;z-index:250;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#060614 0%,#000 100%);gap:20px}
+#char-select-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,229,255,.015) 40px,rgba(0,229,255,.015) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(0,229,255,.015) 40px,rgba(0,229,255,.015) 41px)}
+#char-select-back{position:absolute;top:24px;left:24px;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.35);cursor:pointer;pointer-events:all;z-index:1;transition:color .2s}
+#char-select-back:hover{color:rgba(255,255,255,.7)}
+#char-select-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:8px;color:rgba(255,255,255,.4);text-transform:uppercase;position:relative;z-index:1}
+#char-panels{display:flex;gap:40px;position:relative;z-index:1}
+.char-panel{display:flex;flex-direction:column;align-items:center;gap:12px}
+.char-panel-header{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase}
+.char-cards-row{display:flex;gap:10px}
+.char-card{width:115px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);padding:12px;cursor:pointer;pointer-events:all;transition:all .2s;display:flex;flex-direction:column;gap:6px;position:relative}
+.char-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.3);transform:translateY(-3px)}
+.char-card.selected{border-color:var(--char-color,#fff);background:rgba(255,255,255,.06);box-shadow:0 0 18px rgba(128,128,128,.25)}
+.char-card-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;letter-spacing:2px;color:var(--char-color,#fff);text-align:center}
+.char-card-role{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.35);text-align:center;text-transform:uppercase}
+.char-stat-bars{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.char-stat{display:flex;align-items:center;gap:6px}
+.char-stat-label{font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);width:24px}
+.char-stat-track{flex:1;height:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.char-stat-fill{height:100%}
+#char-select-go{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:5px;text-transform:uppercase;padding:16px 40px;border:1px solid rgba(255,214,0,.5);background:rgba(255,214,0,.06);color:var(--gold);cursor:pointer;pointer-events:all;position:relative;z-index:1;transition:all .2s;margin-top:10px}
+#char-select-go:hover{background:rgba(255,214,0,.14);box-shadow:0 0 20px rgba(255,214,0,.3)}
+.combo-display{position:absolute;bottom:80px;font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;letter-spacing:3px;opacity:0;transition:opacity .15s;pointer-events:none;white-space:nowrap}
+.combo-display.active{opacity:1}
+#p1-combo{left:24px}
+#p2-combo{right:24px}
 #mode-screen{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#0a0a20 0%,#000 100%);gap:24px}
 #mode-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,229,255,.02) 40px,rgba(0,229,255,.02) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(0,229,255,.02) 40px,rgba(0,229,255,.02) 41px)}
 .title-main{font-family:'Orbitron',sans-serif;font-size:80px;font-weight:900;letter-spacing:20px;color:#fff;animation:tglow 3s infinite;line-height:1;position:relative;z-index:1}

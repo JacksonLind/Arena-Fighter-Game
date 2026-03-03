@@ -6,12 +6,18 @@ import { cameraShake } from './hud.js';
 
 export function buildChar(mainCol, accentCol) {
   const root = new THREE.Group();
-  const mat = (c, r = 0.5, m = 0.2) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const mainMats = [], accentMats = [];
+  const mat = (c, r = 0.5, m = 0.2) => {
+    const material = new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+    if (c === mainCol) mainMats.push(material); else if (c === accentCol) accentMats.push(material);
+    return material;
+  };
+  const accentBasic = (opts = {}) => { const material = new THREE.MeshBasicMaterial({ color: accentCol, ...opts }); accentMats.push(material); return material; };
   const skin = mat(0xf0c8a0, 0.9, 0), body = mat(mainCol, 0.4, 0.5), acc = mat(accentCol, 0.3, 0.7), dark = mat(0x111122, 0.8, 0.3);
   const torso = new THREE.Group();
   const chest = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.7, 0.4), body); chest.castShadow = true; torso.add(chest);
   const plate = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.05), acc); plate.position.set(0, 0.02, 0.22); torso.add(plate);
-  const gLine = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, 0.04), new THREE.MeshBasicMaterial({ color: accentCol })); gLine.position.set(0, 0.1, 0.25); torso.add(gLine);
+  const gLine = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, 0.04), accentBasic()); gLine.position.set(0, 0.1, 0.25); torso.add(gLine);
   const abs = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.35, 0.38), dark); abs.position.y = -0.52; abs.castShadow = true; torso.add(abs);
   const belt = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.12, 0.42), acc); belt.position.y = -0.4; torso.add(belt);
   torso.position.y = 1.95; root.add(torso);
@@ -19,9 +25,9 @@ export function buildChar(mainCol, accentCol) {
   const headGroup = new THREE.Group();
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.52, 0.48), skin); head.castShadow = true; headGroup.add(head);
   const helmet = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.2, 0.52), body); helmet.position.y = 0.3; headGroup.add(helmet);
-  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.1, 0.08), new THREE.MeshBasicMaterial({ color: accentCol, transparent: true, opacity: 0.9 }));
+  const visor = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.1, 0.08), accentBasic({ transparent: true, opacity: 0.9 }));
   visor.position.set(0, 0.06, 0.25); headGroup.add(visor);
-  [-0.14, 0.14].forEach(ex => { const eye = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.07, 0.06), new THREE.MeshBasicMaterial({ color: accentCol })); eye.position.set(ex, 0.04, 0.25); headGroup.add(eye); });
+  [-0.14, 0.14].forEach(ex => { const eye = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.07, 0.06), accentBasic()); eye.position.set(ex, 0.04, 0.25); headGroup.add(eye); });
   const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.1, 0.46), mat(0xe0b890, 0.9)); jaw.position.y = -0.22; headGroup.add(jaw);
   headGroup.position.y = 2.48; root.add(headGroup);
   const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.15, 8), skin); neck.position.y = 2.22; root.add(neck);
@@ -50,7 +56,11 @@ export function buildChar(mainCol, accentCol) {
   const shieldMat = new THREE.MeshBasicMaterial({ color: 0x88ccff, transparent: true, opacity: 0, side: THREE.DoubleSide });
   const shield = new THREE.Mesh(new THREE.CircleGeometry(0.7, 20), shieldMat);
   shield.position.set(0, 2.0, 0.55); root.add(shield);
-  return { root, torso, headGroup, armL, armR, forearmL: armL.forearm, forearmR: armR.forearm, legL, legR, shieldMat };
+  function setColors(newMain, newAccent) {
+    mainMats.forEach(m => m.color.setHex(newMain));
+    accentMats.forEach(m => m.color.setHex(newAccent));
+  }
+  return { root, torso, headGroup, armL, armR, forearmL: armL.forearm, forearmR: armR.forearm, legL, legR, shieldMat, setColors };
 }
 
 export const p1Char = buildChar(0x0099cc, 0x00e5ff); p1Char.root.position.set(-3.5, 0, 0); scene.add(p1Char.root);
