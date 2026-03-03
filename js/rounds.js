@@ -1,9 +1,13 @@
 // Round management, countdown, victory, menu flow
-import { gs, makePlayer, roundTransition, vsAI, aiDifficulty, setVsAI, setAiDifficulty } from './gamestate.js';
+import { gs, makePlayer, roundTransition, vsAI, aiDifficulty, setVsAI, setAiDifficulty, ROSTER, p1SelectedChar, p2SelectedChar, setP1Char, setP2Char } from './gamestate.js';
 import { p1Char, p2Char, flyingHeads, reattachHeads } from './characters.js';
 import { scene } from './scene.js';
 import { updateHUD, updateWinDots, showAnnouncer } from './hud.js';
 import { launchHead } from './characters.js';
+
+const ROSTER_MAX_HP_MULT  = Math.max(...ROSTER.map(c => c.hpMult));
+const ROSTER_MAX_SPD_MULT = Math.max(...ROSTER.map(c => c.spdMult));
+const ROSTER_MAX_DMG_MULT = Math.max(...ROSTER.map(c => c.dmgMult));
 
 export function beginCountdown(firstRound = false) {
   gs.p1.frozen = true; gs.p2.frozen = true;
@@ -51,7 +55,7 @@ export function endRound(winner) {
   gs.gameOver = true;
   if (winner === 1) gs.p1.wins++; else gs.p2.wins++;
   updateWinDots();
-  const wname = winner === 1 ? 'AZURE' : (vsAI ? 'CPU' : 'CRIMSON'), wcol = winner === 1 ? '#00e5ff' : '#ff3d71';
+  const wname = winner === 1 ? gs.p1.charName : (vsAI ? 'CPU' : gs.p2.charName), wcol = winner === 1 ? gs.p1.charCssColor : gs.p2.charCssColor;
   const ann = document.getElementById('announcer'); ann.style.color = wcol; ann.style.filter = `drop-shadow(0 0 30px ${wcol})`;
   setTimeout(() => launchHead(winner === 1 ? p2Char : p1Char, winner === 1 ? gs.p2 : gs.p1), 120);
   const matchWins = winner === 1 ? gs.p1.wins : gs.p2.wins;
@@ -75,13 +79,14 @@ function returnToMenu() {
   gs.timer = 60; gs.timerAccum = 0; gs.gameOver = false; gs.started = false; gs.round = 1;
   document.getElementById('round-info').textContent = 'Round 1';
   document.getElementById('announcer').style.opacity = '0'; document.getElementById('announcer2').style.opacity = '0';
-  document.getElementById('p2-label').textContent = 'CRIMSON · P2'; document.getElementById('p2-ctrl-name').textContent = 'Player 2';
+  document.getElementById('p1-label').textContent = 'P1 · AZURE'; document.getElementById('p2-label').textContent = 'CRIMSON · P2'; document.getElementById('p2-ctrl-name').textContent = 'Player 2';
   updateWinDots(); updateHUD(); document.getElementById('mode-screen').style.display = 'flex';
 }
 
 export function resetPlayerState(p, x, facing, keepWins) {
   const wins = p.wins;
-  Object.assign(p, makePlayer(x, facing));
+  const charIdx = p.charIdx !== undefined && p.charIdx >= 0 ? p.charIdx : 0;
+  Object.assign(p, makePlayer(x, facing, ROSTER[charIdx]));
   if (keepWins) p.wins = wins;
 }
 
@@ -97,16 +102,67 @@ export function resetRound() {
   beginCountdown(false);
 }
 
-export function startGame() {
+function buildCharCards(containerId, playerKey) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const currentIdx = playerKey === 'p1' ? p1SelectedChar : p2SelectedChar;
+  ROSTER.forEach((char, i) => {
+    const card = document.createElement('div');
+    card.className = 'char-card' + (i === currentIdx ? ' selected' : '');
+    card.style.setProperty('--char-color', char.cssColor);
+    const hpPct = Math.round(char.hpMult / ROSTER_MAX_HP_MULT * 100);
+    const spdPct = Math.round(char.spdMult / ROSTER_MAX_SPD_MULT * 100);
+    const pwrPct = Math.round(char.dmgMult / ROSTER_MAX_DMG_MULT * 100);
+    card.innerHTML = `<div class="char-card-name">${char.name}</div><div class="char-card-role">${char.role}</div><div class="char-stat-bars"><div class="char-stat"><span class="char-stat-label">HP</span><div class="char-stat-track"><div class="char-stat-fill" style="width:${hpPct}%;background:${char.cssColor}"></div></div></div><div class="char-stat"><span class="char-stat-label">SPD</span><div class="char-stat-track"><div class="char-stat-fill" style="width:${spdPct}%;background:${char.cssColor}"></div></div></div><div class="char-stat"><span class="char-stat-label">PWR</span><div class="char-stat-track"><div class="char-stat-fill" style="width:${pwrPct}%;background:${char.cssColor}"></div></div></div></div>`;
+    card.addEventListener('click', () => {
+      if (playerKey === 'p1') setP1Char(i); else setP2Char(i);
+      container.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+    container.appendChild(card);
+  });
+}
+
+function showCharSelect(mode) {
   document.getElementById('mode-screen').style.display = 'none';
-  if (vsAI) { document.getElementById('p2-label').textContent = 'CRIMSON · CPU'; document.getElementById('p2-ctrl-name').textContent = 'CPU'; document.getElementById('p2-ctrl-row').innerHTML = `<span style="color:var(--p2)">AI-CONTROLLED</span><br><span style="color:rgba(255,255,255,.3)">Diff: ${aiDifficulty.toUpperCase()}</span>`; }
+  const screen = document.getElementById('char-select-screen');
+  screen.style.display = 'flex';
+  screen.dataset.mode = mode;
+  buildCharCards('p1-cards', 'p1');
+  if (mode === 'ai') {
+    document.getElementById('p2-panel').style.display = 'none';
+    setP2Char(Math.floor(Math.random() * ROSTER.length));
+  } else {
+    document.getElementById('p2-panel').style.display = 'flex';
+    buildCharCards('p2-cards', 'p2');
+  }
+}
+
+export function startGame() {
+  document.getElementById('char-select-screen').style.display = 'none';
+  const p1char = ROSTER[p1SelectedChar], p2char = ROSTER[p2SelectedChar];
+  Object.assign(gs.p1, makePlayer(-3.5, 1, p1char)); Object.assign(gs.p2, makePlayer(3.5, -1, p2char));
+  p1Char.setColors(p1char.mainCol, p1char.accentCol); p2Char.setColors(p2char.mainCol, p2char.accentCol);
+  document.getElementById('p1-label').textContent = `P1 · ${p1char.name}`;
+  if (vsAI) {
+    document.getElementById('p2-label').textContent = `${p2char.name} · CPU`;
+    document.getElementById('p2-ctrl-name').textContent = 'CPU';
+    document.getElementById('p2-ctrl-row').innerHTML = `<span style="color:${p2char.cssColor}">${p2char.name}</span> · <span style="color:rgba(255,255,255,.3)">${p2char.role}</span><br><span style="color:rgba(255,255,255,.3)">AI · ${aiDifficulty.toUpperCase()}</span>`;
+  } else {
+    document.getElementById('p2-label').textContent = `${p2char.name} · P2`;
+  }
   gs.started = true;
   beginCountdown(true);
 }
 
 // Menu button listeners
-document.getElementById('btn-ai').addEventListener('click', () => { setVsAI(true); startGame(); });
-document.getElementById('btn-human').addEventListener('click', () => { setVsAI(false); startGame(); });
+document.getElementById('btn-ai').addEventListener('click', () => { setVsAI(true); showCharSelect('ai'); });
+document.getElementById('btn-human').addEventListener('click', () => { setVsAI(false); showCharSelect('human'); });
+document.getElementById('char-select-go').addEventListener('click', () => startGame());
+document.getElementById('char-select-back').addEventListener('click', () => {
+  document.getElementById('char-select-screen').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'flex';
+});
 document.querySelectorAll('.diff-btn').forEach(btn => {
   btn.addEventListener('click', () => { document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); setAiDifficulty(btn.dataset.diff); });
 });

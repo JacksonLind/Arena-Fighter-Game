@@ -37,6 +37,9 @@ function loop(now) {
     gs.p1.facing = gs.p2.x >= gs.p1.x ? 1 : -1; gs.p2.facing = gs.p1.x >= gs.p2.x ? 1 : -1;
     physicsStep(gs.p1, dt); physicsStep(gs.p2, dt); updateHUD();
     if (dt > 0) { gs.p1.vx = (gs.p1.x - p1px) / dt; gs.p1.vz = (gs.p1.z - p1pz) / dt; gs.p2.vx = (gs.p2.x - p2px) / dt; gs.p2.vz = (gs.p2.z - p2pz) / dt; }
+    // Combo timers
+    if (gs.p1.comboTimer > 0) { gs.p1.comboTimer -= dt; if (gs.p1.comboTimer <= 0) gs.p1.comboCount = 0; }
+    if (gs.p2.comboTimer > 0) { gs.p2.comboTimer -= dt; if (gs.p2.comboTimer <= 0) gs.p2.comboCount = 0; }
     if (gs.announceTimer > 0) { gs.announceTimer -= dt; if (gs.announceTimer <= 0) document.getElementById('announcer').style.opacity = '0'; }
     if (gs.announce2Timer > 0) { gs.announce2Timer -= dt; if (gs.announce2Timer <= 0) document.getElementById('announcer2').style.opacity = '0'; }
   } else if (!gs.started) { if (gs.announceTimer > 0) { gs.announceTimer -= dt; if (gs.announceTimer <= 0) document.getElementById('announcer').style.opacity = '0'; } }

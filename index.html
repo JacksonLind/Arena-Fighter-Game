@@ -15,6 +15,22 @@
   <div id="victory-return">Press R to return to menu</div>
 </div>
 
+<div id="char-select-screen">
+  <div id="char-select-back">← BACK</div>
+  <div id="char-select-title">SELECT YOUR FIGHTER</div>
+  <div id="char-panels">
+    <div class="char-panel" id="p1-panel">
+      <div class="char-panel-header" style="color:var(--p1)">PLAYER 1</div>
+      <div class="char-cards-row" id="p1-cards"></div>
+    </div>
+    <div class="char-panel" id="p2-panel">
+      <div class="char-panel-header" style="color:var(--p2)">PLAYER 2</div>
+      <div class="char-cards-row" id="p2-cards"></div>
+    </div>
+  </div>
+  <div id="char-select-go">START FIGHT ▶</div>
+</div>
+
 <div id="mode-screen">
   <div style="position:relative;z-index:1">
     <div class="title-main">ARENA</div>
@@ -40,7 +56,7 @@
   <div id="countdown-overlay"></div>
 
   <div class="hud-side" id="p1-hud">
-    <div class="player-label">P1 · AZURE</div>
+    <div class="player-label" id="p1-label">P1 · AZURE</div>
     <div class="hp-track">
       <div class="hp-fill" id="p1-hp-fill"></div>
       <div class="hp-segs"><div class="hp-seg"></div><div class="hp-seg"></div><div class="hp-seg"></div><div class="hp-seg"></div></div>
@@ -78,6 +94,8 @@
   <div id="announcer"></div>
   <div id="announcer2"></div>
   <div id="special-popup"></div>
+  <div id="p1-combo" class="combo-display"></div>
+  <div id="p2-combo" class="combo-display"></div>
 
   <div id="controls">
     <div class="ctrl-col" id="p1-ctrl">
