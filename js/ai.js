@@ -5,9 +5,9 @@ import { trySpendAS, tryAttack, doSpecial } from './combat.js';
 export function aiThink(dt) {
   if (gs.p2.hitStun > 0 || gs.p2.frozen) { gs.p2.blocking = false; return; }
   const diff = {
-    easy:   { reaction: 0.75, aggression: 0.3,  accuracy: 0.5,  blockChance: 0.2,  dodgeChance: 0.15, specialChance: 0.15 },
-    medium: { reaction: 0.4,  aggression: 0.55, accuracy: 0.72, blockChance: 0.45, dodgeChance: 0.4,  specialChance: 0.5  },
-    hard:   { reaction: 0.18, aggression: 0.78, accuracy: 0.9,  blockChance: 0.75, dodgeChance: 0.7,  specialChance: 0.82 },
+    easy:   { reaction: 1.1,  aggression: 0.18, accuracy: 0.3,  blockChance: 0.08, dodgeChance: 0.06, specialChance: 0.07 },
+    medium: { reaction: 0.65, aggression: 0.38, accuracy: 0.52, blockChance: 0.28, dodgeChance: 0.22, specialChance: 0.28 },
+    hard:   { reaction: 0.35, aggression: 0.58, accuracy: 0.72, blockChance: 0.5,  dodgeChance: 0.42, specialChance: 0.52 },
   }[aiDifficulty];
   ai.actionTimer -= dt; ai.jumpCooldown -= dt; ai.retreatTimer -= dt;
   ai.dodgeTimer = (ai.dodgeTimer || 0) - dt; ai.blockTimer = (ai.blockTimer || 0) - dt;
@@ -37,12 +37,12 @@ export function aiThink(dt) {
   else if (ai.state === 'attack' && !inRange) { gs.p2.x += (dx > 0 ? 1 : -1) * aiSpd * 0.85 * dt; gs.p2.z += (gs.p1.z - gs.p2.z) * Math.min(1, dt * 2); }
   // AI attacks
   if (inRange && !gs.p2.blocking && gs.p2.punching <= 0 && gs.p2.kicking <= 0 && gs.p2.special <= 0 && gs.p2.asExhaust <= 0) {
-    if (Math.random() < diff.accuracy * dt * 7) {
+    if (Math.random() < diff.accuracy * dt * 5) {
       if (closeRange && Math.random() < 0.5) { if (trySpendAS(gs.p2, AS_PUNCH_COST)) { gs.p2.punching = 0.32; tryAttack(gs.p2, gs.p1, 10, 2.4, gs.p2.charCol); } }
       else { if (trySpendAS(gs.p2, AS_KICK_COST)) { gs.p2.kicking = 0.42; tryAttack(gs.p2, gs.p1, 16, 2.8, gs.p2.charCol, 18, true); } }
     }
   }
-  if (gs.p2.sp >= MAX_SP && gs.p2.special <= 0 && !gs.p2.blocking && inRange) { if (Math.random() < diff.specialChance * dt * 2.5) { gs.p2.special = 0.7; gs.p2.sp = 0; doSpecial(gs.p2, gs.p1, gs.p2.charCol, gs.p2.charSpecial); } }
+  if (gs.p2.sp >= MAX_SP && gs.p2.special <= 0 && !gs.p2.blocking && inRange) { if (Math.random() < diff.specialChance * dt * 1.5) { gs.p2.special = 0.7; gs.p2.sp = 0; doSpecial(gs.p2, gs.p1, gs.p2.charCol, gs.p2.charSpecial); } }
   if (gs.p2.onGround && ai.jumpCooldown <= 0 && !gs.p2.blocking) {
     const cp = Math.sqrt(gs.p2.x * gs.p2.x + gs.p2.z * gs.p2.z) > 7 ? 0.04 : 0;
     if (Math.random() < (0.008 + cp) * (aiDifficulty === 'hard' ? 2 : 1)) { gs.p2.vy = 10; gs.p2.onGround = false; ai.jumpCooldown = 2.0 + Math.random() * 2.5; }
