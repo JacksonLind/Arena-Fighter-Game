@@ -1,5 +1,5 @@
 // Round management, countdown, victory, menu flow
-import { gs, makePlayer, roundTransition, vsAI, aiDifficulty, setVsAI, setAiDifficulty, ROSTER, p1SelectedChar, p2SelectedChar, setP1Char, setP2Char } from './gamestate.js';
+import { gs, makePlayer, roundTransition, vsAI, aiDifficulty, setVsAI, setAiDifficulty, ROSTER, p1SelectedChar, p2SelectedChar, setP1Char, setP2Char, CAMPAIGN_ENEMIES, campaignState } from './gamestate.js';
 import { p1Char, p2Char, flyingHeads, reattachHeads } from './characters.js';
 import { scene } from './scene.js';
 import { updateHUD, updateWinDots, showAnnouncer } from './hud.js';
@@ -55,13 +55,19 @@ export function endRound(winner) {
   gs.gameOver = true;
   if (winner === 1) gs.p1.wins++; else gs.p2.wins++;
   updateWinDots();
-  const wname = winner === 1 ? gs.p1.charName : (vsAI ? 'CPU' : gs.p2.charName), wcol = winner === 1 ? gs.p1.charCssColor : gs.p2.charCssColor;
+  const wname = winner === 1 ? gs.p1.charName : (campaignState.active ? gs.p2.charName : (vsAI ? 'CPU' : gs.p2.charName)), wcol = winner === 1 ? gs.p1.charCssColor : gs.p2.charCssColor;
   const ann = document.getElementById('announcer'); ann.style.color = wcol; ann.style.filter = `drop-shadow(0 0 30px ${wcol})`;
   setTimeout(() => launchHead(winner === 1 ? p2Char : p1Char, winner === 1 ? gs.p2 : gs.p1), 120);
   const matchWins = winner === 1 ? gs.p1.wins : gs.p2.wins;
   showAnnouncer(`${wname} WINS!`, 999);
-  if (matchWins >= 2) { setTimeout(() => showVictoryScreen(wname, wcol), 1800); }
-  else { setTimeout(() => resetRound(), 2500); }
+  if (matchWins >= 2) {
+    if (campaignState.active) {
+      if (winner === 1) { setTimeout(() => advanceCampaignStage(), 2000); }
+      else { setTimeout(() => showCampaignGameOver(), 1800); }
+    } else {
+      setTimeout(() => showVictoryScreen(wname, wcol), 1800);
+    }
+  } else { setTimeout(() => resetRound(), 2500); }
 }
 
 function showVictoryScreen(name, col) {
@@ -73,6 +79,11 @@ function onVictoryKey(e) { if (e.code !== 'KeyR') return; document.removeEventLi
 
 function returnToMenu() {
   document.getElementById('victory-screen').style.display = 'none';
+  document.getElementById('campaign-gameover').style.display = 'none';
+  document.getElementById('campaign-stage-intro').style.display = 'none';
+  document.getElementById('victory-title').textContent = 'Champion';
+  document.getElementById('victory-sub').textContent = '⚡ Victorious ⚡';
+  campaignState.active = false; campaignState.stage = 0; campaignState.currentEnemy = null;
   for (const fh of flyingHeads) scene.remove(fh.mesh); flyingHeads.length = 0;
   reattachHeads();
   resetPlayerState(gs.p1, -3.5, 1, true); resetPlayerState(gs.p2, 3.5, -1, true);
@@ -93,7 +104,14 @@ export function resetPlayerState(p, x, facing, keepWins) {
 export function resetRound() {
   for (const fh of flyingHeads) scene.remove(fh.mesh); flyingHeads.length = 0;
   reattachHeads();
-  resetPlayerState(gs.p1, -3.5, 1, true); resetPlayerState(gs.p2, 3.5, -1, true);
+  resetPlayerState(gs.p1, -3.5, 1, true);
+  if (campaignState.active && campaignState.currentEnemy) {
+    const wins = gs.p2.wins;
+    Object.assign(gs.p2, makePlayer(3.5, -1, campaignState.currentEnemy));
+    gs.p2.wins = wins;
+  } else {
+    resetPlayerState(gs.p2, 3.5, -1, true);
+  }
   gs.timer = 60; gs.timerAccum = 0; gs.gameOver = false; gs.round++;
   document.getElementById('round-info').textContent = `Round ${gs.round}`;
   document.getElementById('announcer').style.color = '#fff'; document.getElementById('announcer').style.filter = 'drop-shadow(0 0 30px rgba(255,220,0,.9))';
@@ -129,7 +147,7 @@ function showCharSelect(mode) {
   screen.style.display = 'flex';
   screen.dataset.mode = mode;
   buildCharCards('p1-cards', 'p1');
-  if (mode === 'ai') {
+  if (mode === 'ai' || mode === 'campaign') {
     document.getElementById('p2-panel').style.display = 'none';
     setP2Char(Math.floor(Math.random() * ROSTER.length));
   } else {
@@ -155,13 +173,97 @@ export function startGame() {
   beginCountdown(true);
 }
 
+// Campaign mode functions
+function showCampaignStageIntro(stageIdx, callback) {
+  const enemy = CAMPAIGN_ENEMIES[stageIdx];
+  document.getElementById('csi-stage').textContent = `STAGE ${stageIdx + 1} / ${CAMPAIGN_ENEMIES.length}`;
+  document.getElementById('csi-title').textContent = enemy.title;
+  const nameEl = document.getElementById('csi-enemy');
+  nameEl.textContent = enemy.name; nameEl.style.color = enemy.cssColor; nameEl.style.textShadow = `0 0 40px ${enemy.cssColor}, 0 0 80px ${enemy.cssColor}`;
+  const progress = document.getElementById('csi-progress');
+  progress.innerHTML = CAMPAIGN_ENEMIES.map((e, i) =>
+    `<div class="csi-dot${i < stageIdx ? ' done' : i === stageIdx ? ' current' : ''}" ${i === stageIdx ? `style="border-color:${e.cssColor};background:${e.cssColor}"` : ''}></div>`
+  ).join('');
+  document.getElementById('campaign-stage-intro').style.display = 'flex';
+  setTimeout(() => { document.getElementById('campaign-stage-intro').style.display = 'none'; callback(); }, 2500);
+}
+
+function loadCampaignStage(stageIdx) {
+  const enemy = CAMPAIGN_ENEMIES[stageIdx];
+  campaignState.stage = stageIdx; campaignState.currentEnemy = enemy;
+  for (const fh of flyingHeads) scene.remove(fh.mesh); flyingHeads.length = 0;
+  reattachHeads();
+  setAiDifficulty(enemy.aiDiff);
+  const p1char = ROSTER[p1SelectedChar];
+  Object.assign(gs.p1, makePlayer(-3.5, 1, p1char));
+  Object.assign(gs.p2, makePlayer(3.5, -1, enemy));
+  gs.p1.wins = 0; gs.p2.wins = 0;
+  p1Char.setColors(p1char.mainCol, p1char.accentCol); p2Char.setColors(enemy.mainCol, enemy.accentCol);
+  document.getElementById('p1-label').textContent = `P1 · ${p1char.name}`;
+  document.getElementById('p2-label').textContent = `${enemy.name} · CPU`;
+  document.getElementById('p2-ctrl-name').textContent = 'CPU';
+  document.getElementById('p2-ctrl-row').innerHTML = `<span style="color:${enemy.cssColor}">${enemy.name}</span><br><span style="color:rgba(255,255,255,.3)">AI · ${enemy.aiDiff.toUpperCase()}</span>`;
+  gs.round = 1; document.getElementById('round-info').textContent = 'Round 1';
+  document.getElementById('announcer').style.opacity = '0'; document.getElementById('announcer2').style.opacity = '0';
+  gs.timer = 60; gs.timerAccum = 0; gs.gameOver = false; gs.started = false;
+  updateWinDots(); updateHUD();
+  showCampaignStageIntro(stageIdx, () => { gs.started = true; beginCountdown(true); });
+}
+
+function advanceCampaignStage() {
+  const next = campaignState.stage + 1;
+  if (next >= CAMPAIGN_ENEMIES.length) { showCampaignComplete(); } else { loadCampaignStage(next); }
+}
+
+function showCampaignComplete() {
+  document.getElementById('victory-title').textContent = 'Campaign Champion';
+  const col = gs.p1.charCssColor;
+  const vn = document.getElementById('victory-name');
+  vn.textContent = gs.p1.charName; vn.style.color = col; vn.style.textShadow = `0 0 60px ${col},0 0 120px ${col}`;
+  document.getElementById('victory-sub').textContent = '⚡ Arena Conquered ⚡';
+  document.getElementById('victory-screen').style.display = 'flex';
+  document.addEventListener('keydown', onCampaignCompleteKey);
+}
+function onCampaignCompleteKey(e) {
+  if (e.code !== 'KeyR') return;
+  document.removeEventListener('keydown', onCampaignCompleteKey);
+  returnToMenu();
+}
+
+function showCampaignGameOver() {
+  const enemy = CAMPAIGN_ENEMIES[campaignState.stage];
+  const stageEl = document.getElementById('cgo-stage');
+  stageEl.textContent = `Defeated at Stage ${campaignState.stage + 1} · ${enemy.name}`;
+  stageEl.style.color = enemy.cssColor;
+  document.getElementById('campaign-gameover').style.display = 'flex';
+}
+
+function startCampaign() {
+  document.getElementById('char-select-screen').style.display = 'none';
+  campaignState.active = true;
+  setVsAI(true);
+  loadCampaignStage(0);
+}
+
 // Menu button listeners
 document.getElementById('btn-ai').addEventListener('click', () => { setVsAI(true); showCharSelect('ai'); });
 document.getElementById('btn-human').addEventListener('click', () => { setVsAI(false); showCharSelect('human'); });
-document.getElementById('char-select-go').addEventListener('click', () => startGame());
+document.getElementById('btn-campaign').addEventListener('click', () => { setVsAI(true); showCharSelect('campaign'); });
+document.getElementById('char-select-go').addEventListener('click', () => {
+  const mode = document.getElementById('char-select-screen').dataset.mode;
+  if (mode === 'campaign') startCampaign(); else startGame();
+});
 document.getElementById('char-select-back').addEventListener('click', () => {
   document.getElementById('char-select-screen').style.display = 'none';
   document.getElementById('mode-screen').style.display = 'flex';
+});
+document.getElementById('cgo-retry').addEventListener('click', () => {
+  document.getElementById('campaign-gameover').style.display = 'none';
+  loadCampaignStage(campaignState.stage);
+});
+document.getElementById('cgo-menu').addEventListener('click', () => {
+  document.getElementById('campaign-gameover').style.display = 'none';
+  returnToMenu();
 });
 document.querySelectorAll('.diff-btn').forEach(btn => {
   btn.addEventListener('click', () => { document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); setAiDifficulty(btn.dataset.diff); });
